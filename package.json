@@ -1,0 +1,36 @@
+{
+  "name": "meeting-minutes-saas",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.6.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:migrate": "pnpm --filter @repo/api prisma db push",
+    "db:generate": "pnpm --filter @repo/api prisma generate",
+    "seed": "pnpm --filter @repo/api run seed"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "turbo": "^2.1.1"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "next-auth@*": {
+        "peerDependencies": {
+          "next": "*"
+        }
+      }
+    }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "dotenv": "^16.6.1"
+  }
+}

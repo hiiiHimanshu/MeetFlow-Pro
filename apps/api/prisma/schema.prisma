@@ -1,0 +1,121 @@
+// Prisma schema for Meeting Minutes Summarizer
+// DB: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  createdAt    DateTime @default(now())
+  workspaces   WorkspaceMember[]
+  ownedWorkspaces Workspace[] @relation("UserOwnedWorkspaces")
+  auditLogs    AuditLog[]
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  ownerId     String
+  owner       User     @relation("UserOwnedWorkspaces", fields: [ownerId], references: [id])
+  members     WorkspaceMember[]
+  meetings    Meeting[]
+  integrations Integration[]
+  auditLogs   AuditLog[]
+  createdAt   DateTime @default(now())
+}
+
+model WorkspaceMember {
+  id           String   @id @default(cuid())
+  userId       String
+  workspaceId  String
+  role         Role     @default(MEMBER)
+  user         User     @relation(fields: [userId], references: [id])
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  @@unique([userId, workspaceId])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Meeting {
+  id              String   @id @default(cuid())
+  workspaceId     String
+  title           String
+  transcriptUrl   String?
+  transcriptText  String?
+  calendarEventId String?
+  createdAt       DateTime @default(now())
+  workspace       Workspace @relation(fields: [workspaceId], references: [id])
+  summaries       Summary[]
+  actionItems     ActionItem[]
+}
+
+model Summary {
+  id         String   @id @default(cuid())
+  meetingId  String
+  content    String
+  pdfKey     String?
+  createdAt  DateTime @default(now())
+  meeting    Meeting  @relation(fields: [meetingId], references: [id])
+}
+
+model ActionItem {
+  id         String   @id @default(cuid())
+  meetingId  String
+  text       String
+  assignee   String?
+  dueDate    DateTime?
+  status     ActionStatus @default(OPEN)
+  createdAt  DateTime @default(now())
+  meeting    Meeting  @relation(fields: [meetingId], references: [id])
+}
+
+enum ActionStatus {
+  OPEN
+  DONE
+}
+
+model Integration {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  type         IntegrationType
+  data         Json
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+enum IntegrationType {
+  slack
+  notion
+  google
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  actorId      String
+  action       String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  actor        User      @relation(fields: [actorId], references: [id])
+}
+
+model WebhookEvent {
+  id              String   @id @default(cuid())
+  source          String
+  idempotencyKey  String   @unique
+  payload         Json
+  createdAt       DateTime @default(now())
+}

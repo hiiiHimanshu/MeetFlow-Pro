@@ -1,0 +1,10 @@
+{
+  "name": "@repo/lib",
+  "version": "0.1.0",
+  "private": true,
+  "main": "utils.ts",
+  "dependencies": {
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0"
+  }
+}
