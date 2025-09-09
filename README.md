@@ -135,3 +135,5 @@ pnpm dlx shadcn@latest add [component-name]
 **Built with ❤️ by the MeetFlow Pro team**
 
 *Transform your meetings into actionable intelligence today!*
+>> sign in complete
+>> 
